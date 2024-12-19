@@ -60,3 +60,8 @@
     width: 1.5rem;
     height: 1.5rem;
 }
+
+.pseudo {
+    border-image: linear-gradient(to right, #8f41e9, #578aef) 1;
+    border-radius: 20px;
+}

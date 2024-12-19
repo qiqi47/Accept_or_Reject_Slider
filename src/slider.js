@@ -1,6 +1,5 @@
 import { React, useState } from 'react';
 import { useMotionValue, useTransform, motion, useMotionValueEvent } from 'motion/react';
-import { CheckIcon, XIcon } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Lottie from 'lottie-react';
@@ -23,11 +22,14 @@ export default function Slider() {
     const [background, setBackground] = useState(
         'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))',
     );
+    const [backgroundStroke, setBackgroundStroke] = useState(
+        'linear-gradient(90deg, #ff0000, #ff7f00)',
+    );
     const [outsideGradientColor, setOutsideGradientColor] = useState('url(#gradient-orange)');
     const [outsideFilter, setOutsideFilter] = useState(
         'drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))',
     );
-    const [outsideBorder, setOutsideBorder] = useState('url(#stroke-gradient)');
+    const [outsideStroke, setOutsideStroke] = useState('url(#stroke-gradient)');
 
     const box = {
         width: 64,
@@ -46,7 +48,10 @@ export default function Slider() {
             setBackground('linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))');
             setOutsideGradientColor('url(#gradient-orange)');
             setOutsideFilter('drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))');
-            setOutsideBorder('url(#stroke-gradient)');
+            setOutsideStroke('url(#stroke-gradient)');
+            setBackgroundStroke(
+                'linear-gradient(90deg, rgba(255, 0, 0, 0.5) 0%, rgba(255, 69, 0, 0.7) 50%, rgba(255, 140, 0, 0.5) 100% )',
+            );
         } else if (x.get() > 0) {
             //green area
             setArrowColor('green');
@@ -56,7 +61,8 @@ export default function Slider() {
             );
             setOutsideGradientColor('rgba(0, 0, 0, 0.4)');
             setOutsideFilter('rgba(0, 0, 0, 0.4)');
-            setOutsideBorder('rgba(0, 0, 0, 0.4)');
+            setOutsideStroke('rgba(0, 0, 0, 0.4)');
+            setBackgroundStroke('linear-gradient(90deg, #ff0000, #ff7f00)');
         } else if (x.get() < 0) {
             //red area
             setArrowColor('red');
@@ -66,7 +72,8 @@ export default function Slider() {
             );
             setOutsideGradientColor('rgba(0, 0, 0, 0.4)');
             setOutsideFilter('rgba(0, 0, 0, 0.4)');
-            setOutsideBorder('rgba(0, 0, 0, 0.4)');
+            setOutsideStroke('rgba(0, 0, 0, 0.4)');
+            setBackgroundStroke('linear-gradient(90deg, #ff0000, #ff7f00)');
         } else {
             // unexpected case
             console.warn('Unexpected value:', x.get());
@@ -113,6 +120,7 @@ export default function Slider() {
                     position: 'relative',
                     overflow: 'hidden',
                 }}
+                className="borderBox"
             >
                 <motion.div
                     style={{ ...box, x }}
@@ -151,7 +159,7 @@ export default function Slider() {
 
                         <motion.path
                             strokeWidth="1"
-                            stroke={outsideBorder}
+                            stroke={outsideStroke}
                             filter={outsideFilter}
                             fill={outsideGradientColor}
                             d="M 0, 20 a 20, 20 0 1,0 40,0 a 20, 20 0 1,0 -40,0"
