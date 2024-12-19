@@ -1,28 +1,26 @@
-import { React, useState, useRef, useEffect } from 'react';
+import { React, useState } from 'react';
 import { useMotionValue, useTransform, motion, useMotionValueEvent } from 'motion/react';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 import leftAni from './AnimatedAssets/glowing_left_arrows.json';
 import rightAni from './AnimatedAssets/glowing_right_arrows.json';
+import redleft from './StaticAssets/red_left_arrows.png';
+import redright from './StaticAssets/red_right_arrows.png';
+import greenleft from './StaticAssets/green_left_arrows.png';
+import greenright from './StaticAssets/green_right_arrows.png';
 
 export default function Slider() {
-    const [stopAnimation, setStopAnimation] = useState(false);
-
-    const handleMouseDown = () => {
-        setStopAnimation(false);
-    };
-
-    const handleMouseUp = () => {
-        setStopAnimation(true);
-    };
-
+    const [arrowColor, setArrowColor] = useState('default');
+    const [textColor, setTextColor] = useState('rgba(255, 255, 255, 1)');
+    const [background, setBackground] = useState(
+        'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))',
+    );
     const box = {
         width: 64,
         height: 64,
         zIndex: 1,
-        // backgroundColor: "var(--white)",
         borderRadius: 20,
     };
 
@@ -30,30 +28,25 @@ export default function Slider() {
 
     useMotionValueEvent(x, 'change', (latest) => {
         if (x.get() === 0) {
-            setStopAnimation(false);
-            // console.log(x.get(), 'xxxx', stopAnimation, 'stopAnimation');
-        } else if (x.get() !== 0) {
-            // console.log(x.get(), 'xxxx', stopAnimation, 'stopAnimation');
-            setStopAnimation(true);
+            //default
+            setArrowColor('default');
+            setTextColor('rgba(255, 255, 255, 1)');
+            setBackground('linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))');
+        } else if (x.get() > 0) {
+            //green area
+            setArrowColor('green');
+            setTextColor('rgba(3, 112, 65, 1)');
+            setBackground(
+                'linear-gradient(to top, rgba(64, 198, 134, 1), rgba(26, 80, 62, 1))',
+            );
+        } else {
+            //red area
+            setArrowColor('red');
+            setTextColor('rgba(135, 28, 57, 1)');
+            setBackground(
+                'linear-gradient(to top, rgba(255, 90, 139, 1), rgba(98, 22, 49, 1))',
+            );
         }
-    });
-
-    const backgroundGradient = useTransform(x, (value) => {
-        if (value === 0) {
-            return 'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))';
-        } else if (value < 0) {
-            return 'linear-gradient(to top, rgba(255, 90, 139, 1), rgba(98, 22, 49, 1))';
-        } else if (value > 0) {
-            return 'linear-gradient(to top, rgba(64, 198, 134, 1), rgba(26, 80, 62, 1))';
-        } else return 'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))';
-    });
-
-    const textColor = useTransform(x, (value) => {
-        if (value < 0) {
-            return 'rgba(135, 28, 57, 1)';
-        } else if (value > 0) {
-            return 'rgba(3, 112, 65, 1)';
-        } else return 'rgb(255, 255, 255)';
     });
 
     const outsideGradientColor = useTransform(x, (value) => {
@@ -100,24 +93,6 @@ export default function Slider() {
         }
     };
 
-    const defaultLeftOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: leftAni,
-        rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice',
-        },
-    };
-
-    const defaultRightOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: rightAni,
-        rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice',
-        },
-    };
-
     return (
         <div>
             <motion.div
@@ -130,7 +105,7 @@ export default function Slider() {
                     height: 65,
                     maxWidth: '100%',
                     borderRadius: 20,
-                    background: backgroundGradient,
+                    background: background,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
@@ -140,8 +115,6 @@ export default function Slider() {
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
                     onDragEnd={handleDragEnd}
-                    onMouseDown={handleMouseDown}
-                    onMouseUp={handleMouseUp}
                 >
                     <svg className="progress-icon cursor-pointer" viewBox="0 0 50 50">
                         {/* outside circle */}
@@ -202,14 +175,26 @@ export default function Slider() {
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
                     <XIcon /> Decline{' '}
-                    <Lottie options={defaultLeftOptions} isPaused={stopAnimation} />
+                    {arrowColor === 'default' ? (
+                        <Lottie animationData={leftAni} />
+                    ) : arrowColor === 'green' ? (
+                        <img src={greenleft} alt="green arrow" className="w-[54px] h-8" />
+                    ) : (
+                        <img src={redleft} alt="red arrow" className="w-[54px] h-8" />
+                    )}
                 </motion.div>
                 <motion.div
                     className="absolute right-4 text-sm flex flex-row gap-2 items-center z-0"
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
-                    <Lottie options={defaultRightOptions} isPaused={stopAnimation} /> Accept{' '}
-                    <CheckIcon />
+                    {x.get() === 0 ? (
+                        <Lottie animationData={rightAni} />
+                    ) : x.get() > 0 ? (
+                        <img src={greenright} alt="green arrow" className="w-10 h-8" />
+                    ) : (
+                        <img src={redright} alt="red arrow" className="w-10 h-8" />
+                    )}
+                    Accept <CheckIcon />
                 </motion.div>
             </motion.div>
             <ToastContainer />
