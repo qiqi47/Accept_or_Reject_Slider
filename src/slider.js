@@ -10,6 +10,12 @@ import redleft from './StaticAssets/red_left_arrows.png';
 import redright from './StaticAssets/red_right_arrows.png';
 import greenleft from './StaticAssets/green_left_arrows.png';
 import greenright from './StaticAssets/green_right_arrows.png';
+import greencheck from './StaticAssets/green_check.png';
+import redcheck from './StaticAssets/red_check.png';
+import greenclose from './StaticAssets/green_close.png';
+import redclose from './StaticAssets/red_close.png';
+import whiteclose from './StaticAssets/white_close.png';
+import whitecheck from './StaticAssets/white_check.png';
 
 export default function Slider() {
     const [arrowColor, setArrowColor] = useState('default');
@@ -17,6 +23,12 @@ export default function Slider() {
     const [background, setBackground] = useState(
         'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))',
     );
+    const [outsideGradientColor, setOutsideGradientColor] = useState('url(#gradient-orange)');
+    const [outsideFilter, setOutsideFilter] = useState(
+        'drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))',
+    );
+    const [outsideBorder, setOutsideBorder] = useState('url(#stroke-gradient)');
+
     const box = {
         width: 64,
         height: 64,
@@ -32,6 +44,9 @@ export default function Slider() {
             setArrowColor('default');
             setTextColor('rgba(255, 255, 255, 1)');
             setBackground('linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))');
+            setOutsideGradientColor('url(#gradient-orange)');
+            setOutsideFilter('drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))');
+            setOutsideBorder('url(#stroke-gradient)');
         } else if (x.get() > 0) {
             //green area
             setArrowColor('green');
@@ -39,34 +54,23 @@ export default function Slider() {
             setBackground(
                 'linear-gradient(to top, rgba(64, 198, 134, 1), rgba(26, 80, 62, 1))',
             );
-        } else {
+            setOutsideGradientColor('rgba(0, 0, 0, 0.4)');
+            setOutsideFilter('rgba(0, 0, 0, 0.4)');
+            setOutsideBorder('rgba(0, 0, 0, 0.4)');
+        } else if (x.get() < 0) {
             //red area
             setArrowColor('red');
             setTextColor('rgba(135, 28, 57, 1)');
             setBackground(
                 'linear-gradient(to top, rgba(255, 90, 139, 1), rgba(98, 22, 49, 1))',
             );
-        }
-    });
-
-    const outsideGradientColor = useTransform(x, (value) => {
-        if (value === 0) {
-            return 'url(#gradient-orange)'; // center
+            setOutsideGradientColor('rgba(0, 0, 0, 0.4)');
+            setOutsideFilter('rgba(0, 0, 0, 0.4)');
+            setOutsideBorder('rgba(0, 0, 0, 0.4)');
         } else {
-            return 'rgba(0, 0, 0, 0.4)';
-        } // two sides
-    });
-
-    const outsideFilter = useTransform(x, (value) => {
-        if (value === 0) {
-            return 'drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))';
-        } else return 'rgba(0, 0, 0, 0.4)';
-    });
-
-    const outsideBorder = useTransform(x, (value) => {
-        if (value === 0) {
-            return 'url(#stroke-gradient)';
-        } else return 'rgba(0, 0, 0, 0.4)';
+            // unexpected case
+            console.warn('Unexpected value:', x.get());
+        }
     });
 
     const handleDragEnd = (event, info) => {
@@ -170,31 +174,53 @@ export default function Slider() {
                     </svg>
                 </motion.div>
 
+                {/* cross and decline */}
                 <motion.div
-                    className="absolute left-4 text-sm flex flex-row gap-2 items-center z-0"
+                    className="absolute left-4 text-sm"
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
-                    <XIcon /> Decline{' '}
                     {arrowColor === 'default' ? (
-                        <Lottie animationData={leftAni} />
+                        <div className="leftLayout">
+                            <img src={whiteclose} alt="cross" /> Decline
+                            <Lottie animationData={leftAni} />{' '}
+                        </div>
                     ) : arrowColor === 'green' ? (
-                        <img src={greenleft} alt="green arrow" className="w-[54px] h-8" />
+                        <div className="leftLayout">
+                            <img src={greenclose} alt="cross" /> Decline{' '}
+                            <img src={greenleft} alt="green arrow" className="w-[54px] h-8" />
+                        </div>
                     ) : (
-                        <img src={redleft} alt="red arrow" className="w-[54px] h-8" />
+                        <div className="leftLayout">
+                            <img src={redclose} alt="cross" /> Decline{' '}
+                            <img src={redleft} alt="red arrow" className="w-[54px] h-8" />
+                        </div>
                     )}
                 </motion.div>
+
+                {/* check and accept */}
                 <motion.div
-                    className="absolute right-4 text-sm flex flex-row gap-2 items-center z-0"
+                    className="absolute right-4 text-sm "
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
-                    {x.get() === 0 ? (
-                        <Lottie animationData={rightAni} />
-                    ) : x.get() > 0 ? (
-                        <img src={greenright} alt="green arrow" className="w-10 h-8" />
+                    {arrowColor === 'default' ? (
+                        <div className="rightLayout">
+                            <Lottie animationData={rightAni} />
+                            Accept
+                            <img src={whitecheck} alt="cross" />
+                        </div>
+                    ) : arrowColor === 'green' ? (
+                        <div className="rightLayout">
+                            <img src={greenright} alt="green arrow" className="w-[54px] h-8" />
+                            Accept
+                            <img src={greencheck} alt="cross" />
+                        </div>
                     ) : (
-                        <img src={redright} alt="red arrow" className="w-10 h-8" />
+                        <div className="rightLayout">
+                            <img src={redright} alt="red arrow" className="w-[54px] h-8" />
+                            Accept
+                            <img src={redcheck} alt="cross" />
+                        </div>
                     )}
-                    Accept <CheckIcon />
                 </motion.div>
             </motion.div>
             <ToastContainer />
