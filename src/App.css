@@ -61,7 +61,23 @@
     height: 1.5rem;
 }
 
-.pseudo {
-    border-image: linear-gradient(to right, #8f41e9, #578aef) 1;
-    border-radius: 20px;
+.borderBox {
+    border: 2px solid transparent;
+    border-radius: 22px;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(to bottom, #e53636, #ffe100 40%, #ffe100 60%, #e53636),
+        linear-gradient(90deg, #fffb00, #e53636);
+}
+
+.greenStroke {
+    border-radius: 22px;
+
+    border: 2px solid rgba(218, 73, 108, 1);
+}
+
+.redStroke {
+    border-radius: 22px;
+
+    border: 2px solid rgba(64, 198, 134, 1);
 }
