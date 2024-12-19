@@ -1,24 +1,21 @@
 import { React, useState, useRef, useEffect } from 'react';
-import { useMotionValue, useTransform, motion } from 'motion/react';
+import { useMotionValue, useTransform, motion, useMotionValueEvent } from 'motion/react';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Lottie from 'lottie-react';
+import Lottie from 'react-lottie';
 import leftAni from './AnimatedAssets/glowing_left_arrows.json';
 import rightAni from './AnimatedAssets/glowing_right_arrows.json';
 
 export default function Slider() {
-    const [dragging, setDragging] = useState(false);
-    const [direction, setDirection] = useState(0); //set to center
-    const constraintsRef = useRef(null);
-    const orbRef = useRef(null);
-    const [animation, setAnimation] = useState(true);
+    const [stopAnimation, setStopAnimation] = useState(false);
+
     const handleMouseDown = () => {
-        setAnimation(false);
+        setStopAnimation(false);
     };
 
     const handleMouseUp = () => {
-        setAnimation(true);
+        setStopAnimation(true);
     };
 
     const box = {
@@ -30,7 +27,16 @@ export default function Slider() {
     };
 
     const x = useMotionValue(0);
-    const xInput = [-100, 0, 100];
+
+    useMotionValueEvent(x, 'change', (latest) => {
+        if (x.get() === 0) {
+            setStopAnimation(false);
+            // console.log(x.get(), 'xxxx', stopAnimation, 'stopAnimation');
+        } else if (x.get() !== 0) {
+            // console.log(x.get(), 'xxxx', stopAnimation, 'stopAnimation');
+            setStopAnimation(true);
+        }
+    });
 
     const backgroundGradient = useTransform(x, (value) => {
         if (value === 0) {
@@ -39,8 +45,7 @@ export default function Slider() {
             return 'linear-gradient(to top, rgba(255, 90, 139, 1), rgba(98, 22, 49, 1))';
         } else if (value > 0) {
             return 'linear-gradient(to top, rgba(64, 198, 134, 1), rgba(26, 80, 62, 1))';
-        }
-        return 'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))';
+        } else return 'linear-gradient(to top, rgba(20, 20, 27, 1), rgba(20, 20, 27, 1))';
     });
 
     const textColor = useTransform(x, (value) => {
@@ -48,29 +53,27 @@ export default function Slider() {
             return 'rgba(135, 28, 57, 1)';
         } else if (value > 0) {
             return 'rgba(3, 112, 65, 1)';
-        }
-        return 'rgb(255, 255, 255)';
+        } else return 'rgb(255, 255, 255)';
     });
 
     const outsideGradientColor = useTransform(x, (value) => {
         if (value === 0) {
             return 'url(#gradient-orange)'; // center
-        }
-        return 'rgba(0, 0, 0, 0.4)'; // two sides
+        } else {
+            return 'rgba(0, 0, 0, 0.4)';
+        } // two sides
     });
 
     const outsideFilter = useTransform(x, (value) => {
         if (value === 0) {
             return 'drop-shadow(0px 0px 4px rgba(252, 144, 51, 0.36))';
-        }
-        return 'rgba(0, 0, 0, 0.4)';
+        } else return 'rgba(0, 0, 0, 0.4)';
     });
 
     const outsideBorder = useTransform(x, (value) => {
         if (value === 0) {
             return 'url(#stroke-gradient)';
-        }
-        return 'rgba(0, 0, 0, 0.4)';
+        } else return 'rgba(0, 0, 0, 0.4)';
     });
 
     const handleDragEnd = (event, info) => {
@@ -96,6 +99,25 @@ export default function Slider() {
             });
         }
     };
+
+    const defaultLeftOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: leftAni,
+        rendererSettings: {
+            preserveAspectRatio: 'xMidYMid slice',
+        },
+    };
+
+    const defaultRightOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: rightAni,
+        rendererSettings: {
+            preserveAspectRatio: 'xMidYMid slice',
+        },
+    };
+
     return (
         <div>
             <motion.div
@@ -180,13 +202,13 @@ export default function Slider() {
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
                     <XIcon /> Decline{' '}
-                    <Lottie animationData={leftAni} loop={true} play={animation} />
+                    <Lottie options={defaultLeftOptions} isPaused={stopAnimation} />
                 </motion.div>
                 <motion.div
                     className="absolute right-4 text-sm flex flex-row gap-2 items-center z-0"
                     style={{ color: textColor, opacity: useTransform(x, [-100, 100], [1, 1]) }}
                 >
-                    <Lottie animationData={rightAni} loop={true} play={false} /> Accept{' '}
+                    <Lottie options={defaultRightOptions} isPaused={stopAnimation} /> Accept{' '}
                     <CheckIcon />
                 </motion.div>
             </motion.div>
